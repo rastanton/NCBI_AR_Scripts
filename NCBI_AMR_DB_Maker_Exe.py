@@ -1,5 +1,4 @@
 from Bio import SeqIO
-import sys
 
 def OXA_Family_Changer(input_line, family_list):
     List1 = input_line.split('\t')
@@ -73,7 +72,7 @@ def Space_Replace(input_line):
             else:
                 Out = Out + character
     return Out
-
+#%%
 def AR_DB_Name_Changer(input_fasta, input_catalog, output_fasta):
     """Makes an AR_DB w/ Resistance___sub-resistance__Family__Allele"""
     OXA_Fams = OXA_Like_Family_Finder(input_catalog)
@@ -90,8 +89,11 @@ def AR_DB_Name_Changer(input_fasta, input_catalog, output_fasta):
     for gene in Genes:
         Acc_1 = gene.id.split('|')[1]
         Acc_2 = gene.id.split('|')[2]
+        Allele = gene.id.split('|')[5]
+        Fam = gene.id.split('|')[4]
         for line in Lines:
-            if (Acc_1 in line) or (Acc_2 in line):
+            Allele = line.split()
+            if (Acc_1 in line) and (Acc_2 in line) and (Fam in line):
                 List1 = line.split('\t')
                 Res = List1[7]
                 if (' ') in Res:
@@ -110,7 +112,7 @@ def AR_DB_Name_Changer(input_fasta, input_catalog, output_fasta):
                 SeqIO.write(gene, Out, 'fasta')
     Out.close()
     Duplicate_Gene_Renamer(output_fasta, output_fasta)
-
+#%%
 def Total_Counter(input_list, item):
     Count = 0
     for entry in input_list:
