@@ -1,4 +1,5 @@
 from Bio import SeqIO
+import sys
 
 def OXA_Family_Changer(input_line, family_list):
     List1 = input_line.split('\t')
@@ -87,13 +88,16 @@ def AR_DB_Name_Changer(input_fasta, input_catalog, output_fasta):
     Genes = list(SeqIO.parse(input_fasta, 'fasta'))
     Out = open(output_fasta, 'w')
     for gene in Genes:
-        Acc_1 = gene.id.split('|')[1]
-        Acc_2 = gene.id.split('|')[2]
+        Match = gene.description.split()[-1]
+        Accession = Match.split(':')[0]
+        Pos = Match.split(':')[1]
+        Start = Pos.split('-')[0]
+        Stop = Pos.split('-')[1]
         Allele = gene.id.split('|')[5]
         Fam = gene.id.split('|')[4]
         for line in Lines:
-            Allele = line.split()
-            if (Acc_1 in line) and (Acc_2 in line) and (Fam in line):
+            Allele = line.split('\t')
+            if (Accession in line) and (Start in line) and (Stop in line):
                 List1 = line.split('\t')
                 Res = List1[7]
                 if (' ') in Res:
@@ -112,7 +116,8 @@ def AR_DB_Name_Changer(input_fasta, input_catalog, output_fasta):
                 SeqIO.write(gene, Out, 'fasta')
     Out.close()
     Duplicate_Gene_Renamer(output_fasta, output_fasta)
-#%%
+    CP_Fam_All(output_fasta, output_fasta)
+
 def Total_Counter(input_list, item):
     Count = 0
     for entry in input_list:
@@ -170,6 +175,29 @@ def Big_5_Fasta(input_AMR_fasta, output_fasta):
         for entry in Bigs:
             if (entry in Fam):
                 SeqIO.write(gene, Out, 'fasta')
+    Out.close()
+
+def CP_Fam_Finder(input_fasta):
+    Genes = list(SeqIO.parse(input_fasta, 'fasta'))
+    CP_Fams = []
+    for gene in Genes:
+        if ('CARBAPENEM' in gene.id):
+            Fam = gene.id.split('__')[-2]
+            if (Fam in CP_Fams) == False and Fam != 'blaOXA':
+                CP_Fams.append(Fam)
+    return CP_Fams
+
+def CP_Fam_All(input_fasta, output_fasta):
+##    Fams = CP_Fam_Finder(input_fasta)
+    Fams = ['blaVIM', 'blaIMP', 'blaKPC', 'blaNDM', 'OXA-48-like', 'OXA-235-like', 'OXA-24-like', 'OXA-58-like', 'OXA-23-like']
+    Genes = list(SeqIO.parse(input_fasta, 'fasta'))
+    Out = open(output_fasta, 'w')
+    for gene in Genes:
+        Fam = gene.id.split('__')[-2]
+        if (Fam in Fams) and ('CARBAPENEM' in gene.id) == False:
+            Info = gene.id.split('__')
+            gene.id = Info[0] + '__CARBAPENEM__' + Info[2] + '__' + Info[3]
+        SeqIO.write(gene, Out, 'fasta')
     Out.close()
 
 AR_DB_Name_Changer(sys.argv[1], sys.argv[2], sys.argv[3])
