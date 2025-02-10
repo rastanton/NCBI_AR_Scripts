@@ -1,6 +1,12 @@
 from Bio import SeqIO
 import sys
 
+##Requires Biopython
+##Makes a multifasta AR gene catalog with the gene resistance class, sub-class, family, and alleles in the gene name separated by a double underscore (__)
+##Example of gene name in outputput multifasta: >BETA-LACTAM__CARBAPENEM__blaKPC__blaKPC-10
+##Usage: >python NCBI_AMR_DB_Maker_Exe.py AMR_CDS.fa ReferenceGeneCatalog.txt AR_Gene_DB.fasta
+##Written by: Rich Stanton (rstanton@cdc.gov/github.com/rastanton)
+
 def OXA_Family_Changer(input_line, family_list):
     List1 = input_line.split('\t')
     Fam = List1[1]
